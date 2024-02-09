@@ -4,7 +4,9 @@ A book with runtime editable functions
 
 Copyright (c) 2024 monk <monk.squareone@gmail.com>
 
-<sup>MIT License</sup>
+<sup>Source: MIT License</sup>
+
+<sup>Media: CC0 1.0 Universal</sup>
 
 ## Details
 
