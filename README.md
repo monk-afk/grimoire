@@ -2,11 +2,7 @@ Grimoire
 ========
 A book with runtime editable functions
 
-Copyright (c) 2024 monk <monk.squareone@gmail.com>
-
-<sup>Source: MIT License</sup>
-
-<sup>Media: CC0 1.0 Universal</sup>
+by monk, circa 2024
 
 ## Details
 
