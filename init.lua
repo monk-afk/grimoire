@@ -1,38 +1,37 @@
-  --==[[   Grimoire - 0.01   ]]==--
-  --==[[  MIT 2024 (c) monk  ]]==--
+  --==[[   Grimoire - 0.1.1   ]]==--
+  --==[[  MIT 2024 (c)  monk  ]]==--
 
 local path = minetest.get_modpath(minetest.get_current_modname()).."/"
 
+   -- Chat command calls functions from invoke.lua
+minetest.register_chatcommand("grimoire", {
+  description = "Do functions from file",
+  params = "<param> [<argument>]",
+  privs = {server = true},
+  func = function(name, params)
+    local param, argument = params:match("^([%a-zA-Z0-9_]+)%s*([%w]*)$")
+    if not param then return end
+    local invoke = dofile(path .. "methods_chat.lua")
+    invoke(name, param)[param](argument)
+  end
+})
+
+   -- Book calls tool on-events
 minetest.register_tool("grimoire:spellbook", {
 	description = "monk's Grimoire",
 	inventory_image = "grimoire_spellbook.png",
 	wield_image = "grimoire_spellbook.png",
 	groups = {not_in_creative_inventory = 1},
-    stack_max = 1,
-    range = 200.0,
+  stack_max = 1,
+  range = 230.0,
 	liquids_pointable = true,
-    tool_capabilities = {
-        full_punch_interval = 0.1,
-        max_drop_level = 3,
-        groupcaps = {
-            bendy         = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            snappy        = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            fleshy        = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            cracky        = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            choppy        = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            crumbly       = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            unbreakable   = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-            dig_immediate = {times = {[1] = 0, [2] = 0, [3] = 0}, uses = 0, maxlevel = 3},
-        },
-        punch_attack_uses = 0,
-    },
 
 	on_use = function(itemstack, player, pointed_thing)
 		if not minetest.check_player_privs(player, { server = true }) then
 			itemstack:take_item()
 			return itemstack
 		end
-		local cast_spell = dofile(path.."cast.lua")
+		local cast_spell = dofile(path.."methods_tool.lua")
 		return cast_spell(itemstack, player, pointed_thing):onuse()
 	end,
 
@@ -41,7 +40,7 @@ minetest.register_tool("grimoire:spellbook", {
 			itemstack:take_item()
 			return itemstack
 		end
-		local cast_spell = dofile(path.."cast.lua")
+		local cast_spell = dofile(path.."methods_tool.lua")
 		return cast_spell(itemstack, player, pointed_thing):onplace()
 	end,
 
@@ -50,7 +49,7 @@ minetest.register_tool("grimoire:spellbook", {
 			itemstack:take_item()
 			return itemstack
 		end
-		local cast_spell = dofile(path.."cast.lua")
+		local cast_spell = dofile(path.."methods_tool.lua")
 		return cast_spell(itemstack, player, pointed_thing):onsec()
 	end,
 
@@ -59,7 +58,9 @@ minetest.register_tool("grimoire:spellbook", {
 			itemstack:take_item()
 			return itemstack
 		end
-		local cast_spell = dofile(path.."cast.lua")
+		local cast_spell = dofile(path.."methods_tool.lua")
 		return cast_spell(itemstack, player, pos):ondrop()
 	end,
 })
+
+minetest.register_alias("grimoire", "grimoire:spellbook")
