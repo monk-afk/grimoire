@@ -1,4 +1,4 @@
-  --==[[   Grimoire - 0.1.1   ]]==--
+  --==[[   Grimoire - 0.1.2   ]]==--
   --==[[  MIT 2024 (c)  monk  ]]==--
 
 local function invoke(name, param)
