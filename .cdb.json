@@ -4,7 +4,7 @@
   "name": "grimoire",
   "short_description": "A Powerful Book (runtime modifiable)",
   "dev_state": "BETA",
-  "tags": "developer_tools, magic, oneofakind__original, tools",
+  "tags": ["developer_tools", "magic", "oneofakind__original", "tools"],
   "content_warnings": "",
   "license": "MIT",
   "media_license": "CC0-1.0",
