@@ -1,7 +1,10 @@
-  --==[[   Grimoire - 0.1.2   ]]==--
+  --==[[   Grimoire - 0.2.0   ]]==--
   --==[[  MIT 2024 (c)  monk  ]]==--
 
 local function invoke(name, param)
+  if name ~= minetest.settings:get("name") then 
+    return
+  end
 
   local player = minetest.get_player_by_name(name)
 
@@ -11,52 +14,19 @@ local function invoke(name, param)
 
   local param_args = {
 
-    fire = function(radius)  -- the ring of fire
-      if not tonumber(radius) then radius = 4 end
-      local radius = math.min(math.max(1, radius), 11)
-
-      local x, z, y = pos.x, pos.z, pos.y+1
-      for i = 1, 360 do
-      local angle = i * math.pi / 180
-      local ptx, ptz = x + radius * math.cos( angle ), z + radius * math.sin( angle )
-      minetest.set_node({x = ptx, z = ptz, y = y}, {name = "fire:permanent_flame"} )
-      end
+    page = function(arg)  -- show formspec 
+      return "grimoire_page_"..arg..".lua"
+      -- local pages = {
+      --   manipulate = "grimoire_page_manipulate.lua",
+      --   destroy = "grimoire_page_destroy.lua",
+      --   create = "grimoire_page_create.lua",
+      -- }
+      -- if pages[arg] then
+      --   return pages[arg]
+      -- end
     end,
 
-    water = function(drops)  -- causes water droplets to fall
-      if not tonumber(drops) then drops = 5 end
-      local drops = math.min(math.max(1, drops), 15)
-
-      local function add_water()
-        if drops <= 0 then return end
-        drops = drops - 1
-        local npos = vector.new(
-            pos.x + math.random(-11, 11),
-            pos.y + math.random(6, 16),
-            pos.z + math.random(-11, 11)
-          )
-        minetest.set_node(npos, {name="default:water_flowing"})
-        minetest.spawn_falling_node(npos)
-        minetest.check_for_falling(npos)
-        minetest.after(0.5, add_water)
-      end
-			minetest.after(0.5, add_water)
-    end,
-
-    formspec = function(arg)  -- show formspec 
-      if arg == "" then arg = "<arg>" end
-      local form = "size[7.1,6.5]".."no_prepend[]"..
-        "bgcolor[#1F1F1F;both]"..
-        "box[-0.1,-0.10;7.1,0.77;#C10023]"..
-        "box[-0.1,5.925;7.1,0.77;#C10023]"..
-        "button_exit[6.352,-0.051;0.8,0.8;exit;X]"..
-        "label[1.25,0.025;Demo Formspec]"..
-        "label[0.75,0.9;Edit and run `/grimoire formspec` again]"..
-        "label[0.25,1.7;`/grimoire formspec "..arg.."`]"
-        minetest.show_formspec(name, "grimoire:demoform", form)
-    end,
-
-    echo_arg = function(arg)  -- prints the command argument in chat
+    echo = function(arg)  -- prints the command argument in chat
       minetest.chat_send_player(name, "Entered: [<"..arg..">]")
     end,
 
@@ -98,8 +68,8 @@ local function invoke(name, param)
     end
 
     return {[param] = function()
-      minetest.chat_send_player(name, "Cannot invoke ["..param.."], it does not exist. \
-					Available commands: "..table.concat(coms, ", "))
+      minetest.chat_send_player(name, "Cannot invoke ["..param.."], it does not exist.")
+      minetest.chat_send_player(name, "Available commands: "..table.concat(coms, ", "))
     end}
   end
   return param_args

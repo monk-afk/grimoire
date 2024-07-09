@@ -1,70 +1,43 @@
 Grimoire
 ========
-Tool and Chat Commands with Runtime Editable Modfiles
 
-(c)(0) 2024 monk
+A Powerful Book of Spells
 
-MIT Licensed Software, CC0 Licensed Media
+(c) 2024 monk
 
-##
-Apply Lua file edits without restarting Minetest. Not intended for multiplayer.
+MIT Licensed Source, CC0 Licensed Media
 
-Requires `server` privilege.
+___
 
-Local table data within the files called by dofile will not persist between callbacks.
+## Runtime Modifiable
 
-> [!WARNING]
-> Editing mod files with invalid code will cause server crash.
+Mod files can be *edited or introduced* during runtime without restarting Minetest.
 
-### Chat Command, `/grimoire`
-**methods_chat.lua**
+Copy any existing 'page' to use as a template, then modify it with the desired functions. The new page must follow the naming format `grimoire_page_`*pagename*`.lua`
 
-Command parameters can be introduced or removed from the method table.
+## Grimoire Pages
 
-Keys with function values indexed in the param_args table are returned methods called as chat command parameters.
+Pages can be 'selected' with the command `/grimoire page pagename`.
 
-In this demo, the following parameters are included:
+For example; There are three pages included in the default release of this mod: create, destroy, manipulate. To use the spells (functions) from the create page, use `/grimoire page create`. This will set the current page to create and you can now use the Grimoire functions from that file.
 
-- `/grimoire <fire> [<size>]`
-    - Sets a ring of fire of optional size around player
+You can use any callback functions such as `on_use`, `on_place`, `on_secondary`, `on_drop`, in combination with player controls (if they have been included): up, down, left, right, jump, aux1, sneak, dig, place, LMB, RMB, and zoom.
 
-- `/grimoire <water> [<drops>]`
-    - Spawn falling water nodes around player
+- If you return a function not nil, the Grimoire is taken from inventory.
+- Don't worry: the on_drop and on_place won't drop or place the book
+- The book is destroyed if it is used by a player without the `server` privilege
 
-- `/grimoire <echo_arg> [<arg>]`
-    - Sends chat message containing the <arg> value
+The pages contain a few functions to get started. I encourage you to craft your own spells! What powers are you capable?
 
-- `/grimoire formspec [<arg>]`
-    - Shows demo formspec
+## Grimoire Commands
 
-If the parameter does not exist in the param_args table, the table returns with a catchall function. 
+The default format for chat commands is `/grimoire <main_function> [optional_argument]`
 
-### Registered Tool, "grimoire:spellbook"
-**methods_tool.lua**
+If you call a non-existing function, the list of available functions is printed in the chat.
 
-Callback functions `on_use`, `on_place`, `on_secondary`, `on_drop`, in combination with player controls.
+Currently, only `/grimoire spiral` and `/grimoire page [pagename]` are included in this release.
+___
 
-The table returned from `get_player_control()` may contain: up, down, left, right, jump, aux1, sneak, dig, place, LMB, RMB, and zoom
+Current Version **`0.2.0`**
 
-If the method function return not nil, the spellbook is taken from inventory.
-
-Grimoire Demo includes:
-   - Use Item: Dig pointed node
-   - Aux1 + Use Item: Remove pointed node
-   
-   - Secondary Use, (Pointing at Nothing): Set time to morning
-   - Sneak + Secondary, : Set time to night
-
-   - Place Item: Teleport to pointed pos
-   - Aux1 + Place Item: Place dirt against pointed node
-
-   - Drop Item: Remove water in radius
-   - Aux + Drop Item: Spawn falling stone
-
-  > 'Place' and 'Drop' will return the book to inventory.
-
-##
-
-Current Version **`0.1.1`**
-
-<sup>monk.moe @ Discord ID: 699370563235479624</sup
+<sup>Discord monk.moe (ID:699370563235479624)</sup>
