@@ -1,6 +1,9 @@
 Grimoire
 ========
 
+[![ContentDB](https://content.minetest.net/packages/monk/grimoire/shields/downloads/)](https://content.minetest.net/packages/monk/grimoire/)
+
+
 A Powerful Book of Spells
 
 (c) 2024 monk
