@@ -1,75 +1,117 @@
-  --==[[   Grimoire - 0.2.0   ]]==--
+  --==[[   Grimoire - 0.3.0   ]]==--
   --==[[  MIT 2024 (c)  monk  ]]==--
 
-local path = minetest.get_modpath(minetest.get_current_modname()).."/"
+local path = minetest.get_modpath(minetest.get_current_modname()).."/pages/"
 
-local page = "grimoire_page_manipulate.lua"
+local grim_memory = {
+    page_name = "not set"
+}
 
-   -- Chat command method calls
+local function override(methods)
+  return minetest.override_item("grimoire:spellbook", {
+      on_use = methods.on_use,
+      on_place = methods.on_place,
+      on_secondary_use = methods.on_secondary_use,
+      on_drop = methods.on_drop,
+    })
+end
+
+  -- Chat command to change book functions
 minetest.register_chatcommand("grimoire", {
-  description = "Do functions from file",
-  params = "<param> [<argument>]",
+  description = "Change Grimoire page or invoke a command",
+  params = "<page|invoke> <param> [<arguments>]",
   privs = {server = true},
   func = function(name, params)
-    local param, argument = params:match("^([%S]+)%s*([%S]*)$")
-    if not param then return end
-    local invoke = dofile(path .. "methods_chat.lua")
-    if param == "page" then
-      page = invoke(name, param)[param](argument) or page
-      minetest.chat_send_player(name, "Grimoire page set to "..page)
-    else
-      invoke(name, param)[param](argument)
+    local action, script, vargs = params:match("^(%S+)%s+(%S+)%s*([%S%s]*)$")
+
+    if not action or not script then
+      return false, "[Grimoire] Missing parameters! <page|invoke> <script>"
+
+    elseif action == "help" then
+      return false, "[Grimoire] Current page is: "..grim_memory.page_name
     end
+
+    local dir_list = minetest.get_dir_list(path, false)
+    local requested_page = action.."_"..script..".lua"
+    local full_path = path..requested_page
+
+    for n = 1, #dir_list do
+      if dir_list[n] == requested_page then
+        if action == "page" then
+
+          local methods
+          local status, err = pcall(function()
+              methods = dofile(full_path)(grim_memory)
+            return methods
+          end)
+
+          print(dump(status))
+
+          if not status then
+            return false, "[Grimoire] Error: "..err
+
+          else
+            grim_memory.page_name = script  -- saved to call back later if needed
+            minetest.chat_send_player(name, "[Grimoire] Using page ".. script .. "!")
+            return override(methods)
+          end
+
+        elseif action == "invoke" then
+          local status, err = pcall(function()
+            return dofile(full_path)(grim_memory, name, vargs)
+          end)
+
+          if not status then
+            return false, "[Grimoire] Error: "..err
+          else
+            return true, "[Grimoire] Invoked ".. script .. "!"
+          end
+        end
+      end
+    end
+    return false, "[Grimoire] "..action.." "..script.." not found!"
   end
 })
 
-   -- Book calls book on-events
+
 minetest.register_tool("grimoire:spellbook", {
-	description = "魔導書",
-	inventory_image = "grimoire_book.png",
-	wield_image = "grimoire_book.png",
-	groups = {not_in_creative_inventory = 1},
+  description = "魔導書",
+  inventory_image = "grimoire_spellbook.png",
+  wield_image = "grimoire_spellbook.png",
+  groups = {not_in_creative_inventory = 1},
   damage_groups = {fleshy = -9},
   stack_max = 1,
   range = 230.0,
-	liquids_pointable = true,
-	light_source = 8,
+  liquids_pointable = true,
+  light_source = 8,
 
-	on_use = function(itemstack, player, pointed_thing)
-		if not minetest.check_player_privs(player, { server = true }) then
-			itemstack:take_item()
-			return itemstack
-		end
-		local cast_spell = dofile(path..page)
-		return cast_spell(itemstack, player, pointed_thing):onuse()
-	end,
+  on_use = function(itemstack, player, pointed_thing)
+    if not minetest.check_player_privs(player, {server = true}) then
+      itemstack:take_item()
+      return itemstack
+    end
+  end,
 
-	on_place = function(itemstack, player, pointed_thing)
-		if not minetest.check_player_privs(player, { server = true }) then
-			itemstack:take_item()
-			return itemstack
-		end
-		local cast_spell = dofile(path..page)
-		return cast_spell(itemstack, player, pointed_thing):onplace()
-	end,
+  on_place = function(itemstack, player, pointed_thing)
+    if not minetest.check_player_privs(player, {server = true}) then
+      itemstack:take_item()
+      return itemstack
+    end
+  end,
 
-	on_secondary_use = function(itemstack, player, pointed_thing)
-		if not minetest.check_player_privs(player, { server = true }) then
-			itemstack:take_item()
-			return itemstack
-		end
-		local cast_spell = dofile(path..page)
-		return cast_spell(itemstack, player, pointed_thing):onsec()
-	end,
+  on_secondary_use = function(itemstack, player, pointed_thing)
+    if not minetest.check_player_privs(player, {server = true}) then
+      itemstack:take_item()
+      return itemstack
+    end
+  end,
 
-	on_drop = function(itemstack, player, pos)
-		if not minetest.check_player_privs(player, { server = true }) then			
-			itemstack:take_item()
-			return itemstack
-		end
-		local cast_spell = dofile(path..page)
-		return cast_spell(itemstack, player, pos):ondrop()
-	end,
+  on_drop = function(itemstack, player, pos)
+    if not minetest.check_player_privs(player, {server = true}) then			
+      itemstack:take_item()
+      return itemstack
+    end
+  end,
 })
 
 minetest.register_alias("grimoire", "grimoire:spellbook")
