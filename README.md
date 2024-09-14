@@ -12,35 +12,73 @@ MIT Licensed Source, CC0 Licensed Media
 
 ___
 
+## Summary
+
+- New to this version: grim_memory and page_memory
+  - grim_memory: high-level local persistent context (until nil or shutdown)
+  - page_memory: block-level local temporary context (until overrided)
+
+- Override Grimoire's on-callbacks with files named "page_*.lua"
+  - Examples included: `page_builder.lua` and `page_template.lua`
+  - Apply with the chat command, ex: `/grimoire page builder`
+
+- Single-use scripts are called from files named "invoke_*.lua"
+  - Packaged examples: `invoke_echo.lua` and `invoke_template.lua`
+  - Execute invoke pages with `/grimoire invoke echo`
+
+
 ## Runtime Modifiable
 
 Mod files can be *edited or introduced* during runtime without restarting Minetest.
 
-Copy any existing 'page' to use as a template, then modify it with the desired functions. The new page must follow the naming format `grimoire_page_`*pagename*`.lua`
+The files within the `pages` folder are prefixed with either 'page_' or 'invoke_'.
+
+Files named `pages_` contain overriding callback methods used by the `spellbook` item.
+
+Files named `invoke_` contain functions to execute with the `invoke` chat command.
+
 
 ## Grimoire Pages
 
-Pages can be 'selected' with the command `/grimoire page pagename`.
+The item `grimoire:spellbook` does nothing by default.
 
-For example; There are three pages included in the default release of this mod: create, destroy, manipulate. To use the spells (functions) from the create page, use `/grimoire page create`. This will set the current page to create and you can now use the Grimoire functions from that file.
+To use the spellbook, first use the chat command: `/grimoire page builder`.
 
-You can use any callback functions such as `on_use`, `on_place`, `on_secondary`, `on_drop`, in combination with player controls (if they have been included): up, down, left, right, jump, aux1, sneak, dig, place, LMB, RMB, and zoom.
+This will select the file named `page_builder.lua` and will override the book's existing functions.
 
-- If you return a function not nil, the Grimoire is taken from inventory.
-- Don't worry: the on_drop and on_place won't drop or place the book
+When a new page is added, or an existing page is modified, the `page` command can be used to apply the new functions.
+
+You can use any callback functions such as `on_use`, `on_place`, `on_secondary`, `on_drop`, in combination with player controls (if they have been included in the function): up, down, left, right, jump, aux1, sneak, dig, place, LMB, RMB, and zoom.
+
+- Dropping and placing the spellbook won't drop or place the book
 - The book is destroyed if it is used by a player without the `server` privilege
 
-The pages contain a few functions to get started. I encourage you to craft your own spells! What powers are you capable?
 
-## Grimoire Commands
+## Grimoire Invoke
 
-The default format for chat commands is `/grimoire <main_function> [optional_argument]`
+Similar to pages, the `invoke` command will execute functions from file.
 
-If you call a non-existing function, the list of available functions is printed in the chat.
+For example: `/grimoire invoke echo` will execute the function within `invoke_echo.lua`.
 
-Currently, only `/grimoire spiral` and `/grimoire page [pagename]` are included in this release.
+The functions will run only from chat command, and not added to the spellbook's functionality.
+
+The invoke files can be modified and run again using the same command.
+
+To add a new invoke command, a new file can be created from the `invoke_template.lua` template.
+
+
+## Grimoire Memory
+
+The init.lua file contains a table `grim_memory` which is passed as a variable to pages or commands.
+
+Using a new page or invoke command will not erase the `grim_memory`.
+
+Each Grimoire page file can have a table for storing temporary variables to be used by the spellbook.
+
+The `page_memory` table will be forgotten when a new page is selected.
+
 ___
 
-Current Version **`0.2.0`**
+Current Version **`0.3.0`**
 
 <sup>Discord monk.moe (ID:699370563235479624)</sup>
