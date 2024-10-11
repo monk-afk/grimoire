@@ -1,16 +1,11 @@
-  --==[[   Grimoire - 0.3.0   ]]==--
-  --==[[  MIT 2024 (c)  monk  ]]==--
+    --==[[   Grimoire - 0.3.1   ]]==--
+    --==[[  MIT 2024 (c)  monk  ]]==--
   
 local page_memory = {}
 
 local function builder(grim_memory)
   return {
     on_use = function(itemstack, player, pointed_thing)
-      if not minetest.check_player_privs(player, {server = true}) then
-        itemstack:take_item()
-        return itemstack
-      end
-
       -- use like a pick or shovel to 'dig'
       if pointed_thing.type == "node" then
         local n = 1
@@ -46,11 +41,6 @@ local function builder(grim_memory)
 
     -- place like a node to duplicate the pointed node
     on_place = function(itemstack, player, pointed_thing)
-      if not minetest.check_player_privs(player, {server = true}) then
-        itemstack:take_item()
-        return itemstack
-      end
-
       if pointed_thing.type == "node" then
         local pressed = player:get_player_control()
         local pointed_pos = minetest.get_pointed_thing_position(pointed_thing)
@@ -82,18 +72,9 @@ local function builder(grim_memory)
     end,
 
     on_secondary_use = function(itemstack, player, pointed_thing)
-      if not minetest.check_player_privs(player, {server = true}) then
-        itemstack:take_item()
-        return itemstack
-      end
     end,
 
     on_drop = function(itemstack, player, v)
-      if not minetest.check_player_privs(player, {server = true}) then
-        itemstack:take_item()
-        return itemstack
-      end
-
       -- hold aux1 while 'dropping' to clear water from in a 10 radius area
       local pressed = player:get_player_control()
 
@@ -119,7 +100,7 @@ local function builder(grim_memory)
           end
         end
       end
-    end
+    end,
   }
 end
 

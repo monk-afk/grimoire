@@ -14,17 +14,15 @@ ___
 
 ## Summary
 
-- New to this version: grim_memory and page_memory
+- New to version 0.3.x: grim_memory and page_memory
   - grim_memory: high-level local persistent context (until nil or shutdown)
   - page_memory: block-level local temporary context (until overrided)
 
 - Override Grimoire's on-callbacks with files named "page_*.lua"
-  - Examples included: `page_builder.lua` and `page_template.lua`
-  - Apply with the chat command, ex: `/grimoire page builder`
+  - Apply with the chat command: `/grimoire page <name of page>`
 
 - Single-use scripts are called from files named "invoke_*.lua"
-  - Packaged examples: `invoke_echo.lua` and `invoke_template.lua`
-  - Execute invoke pages with `/grimoire invoke echo`
+  - Execute invoke files with `/grimoire invoke <name of file>`
 
 
 ## Runtime Modifiable
@@ -53,6 +51,12 @@ You can use any callback functions such as `on_use`, `on_place`, `on_secondary`,
 - Dropping and placing the spellbook won't drop or place the book
 - The book is destroyed if it is used by a player without the `server` privilege
 
+- Available pages:
+  - `builder` place and dig nodes
+  - `meta` set owner to node
+  - `example` various functional examples
+  - `template` functionless template
+  - `disable` disables Grimoire functions
 
 ## Grimoire Invoke
 
@@ -66,6 +70,12 @@ The invoke files can be modified and run again using the same command.
 
 To add a new invoke command, a new file can be created from the `invoke_template.lua` template.
 
+- Available invoke files:
+  - `echo` sends chat message of command parameter
+  - `vanish` make yourself disappear
+  - `memory` basic grimoire context manager
+  - `formspec` opens a formspec with parameter label
+  - `template` functionless template
 
 ## Grimoire Memory
 
@@ -79,6 +89,6 @@ The `page_memory` table will be forgotten when a new page is selected.
 
 ___
 
-Current Version **`0.3.0`**
+Current Version **`0.3.1`**
 
 <sup>Discord monk.moe (ID:699370563235479624)</sup>

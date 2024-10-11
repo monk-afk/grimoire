@@ -1,4 +1,4 @@
-  --==[[   Grimoire - 0.3.0   ]]==--
+  --==[[   Grimoire - 0.3.1   ]]==--
   --==[[  MIT 2024 (c)  monk  ]]==--
 
 local path = minetest.get_modpath(minetest.get_current_modname()).."/pages/"
@@ -7,23 +7,41 @@ local grim_memory = {
     page_name = "not set"
 }
 
-local function override(methods)
-  return minetest.override_item("grimoire:spellbook", {
-      on_use = methods.on_use,
-      on_place = methods.on_place,
-      on_secondary_use = methods.on_secondary_use,
-      on_drop = methods.on_drop,
-    })
+-- wrapper function for checking priv without adding to every page file
+local check_player_privs = minetest.check_player_privs
+local function priv_check(itemstack, player, pointed_thing, overriding_function)
+  if not check_player_privs(player, {server = true}) then
+    return itemstack
+  end
+  return overriding_function(itemstack, player, pointed_thing)
 end
 
-  -- Chat command to change book functions
+local function override(methods)
+  return minetest.override_item("grimoire:spellbook", {
+    on_use = function(itemstack, player, pointed_thing)
+      return priv_check(itemstack, player, pointed_thing, methods.on_use)
+    end,
+    on_place = function(itemstack, player, pointed_thing)
+      return priv_check(itemstack, player, pointed_thing, methods.on_place)
+    end,
+    on_secondary_use = function(itemstack, player, pointed_thing)
+      return priv_check(itemstack, player, pointed_thing, methods.on_secondary_use)
+    end,
+    on_drop = function(itemstack, player, pointed_thing)
+      return priv_check(itemstack, player, pointed_thing, methods.on_drop)
+    end,
+  })
+end
+
+  -- Chat command to override tool callbacks, or invoke functions with dofile
 minetest.register_chatcommand("grimoire", {
   description = "Change Grimoire page or invoke a command",
   params = "<page|invoke> <param> [<arguments>]",
   privs = {server = true},
   func = function(name, params)
     local action, script, vargs = params:match("^(%S+)%s+(%S+)%s*([%S%s]*)$")
-
+      -- action is "page" or "invoke"
+      -- script is the name of the lua file after the first underscore: "action"_"script".lua
     if not action or not script then
       return false, "[Grimoire] Missing parameters! <page|invoke> <script>"
 
@@ -45,13 +63,11 @@ minetest.register_chatcommand("grimoire", {
             return methods
           end)
 
-          print(dump(status))
-
           if not status then
             return false, "[Grimoire] Error: "..err
 
           else
-            grim_memory.page_name = script  -- saved to call back later if needed
+            grim_memory.page_name = script
             minetest.chat_send_player(name, "[Grimoire] Using page ".. script .. "!")
             return override(methods)
           end
@@ -73,6 +89,8 @@ minetest.register_chatcommand("grimoire", {
   end
 })
 
+-- default and disabled methods 
+local defaulted_methods = dofile(path.."page_disable.lua")()
 
 minetest.register_tool("grimoire:spellbook", {
   description = "魔導書",
@@ -83,35 +101,11 @@ minetest.register_tool("grimoire:spellbook", {
   stack_max = 1,
   range = 230.0,
   liquids_pointable = true,
-  light_source = 8,
-
-  on_use = function(itemstack, player, pointed_thing)
-    if not minetest.check_player_privs(player, {server = true}) then
-      itemstack:take_item()
-      return itemstack
-    end
-  end,
-
-  on_place = function(itemstack, player, pointed_thing)
-    if not minetest.check_player_privs(player, {server = true}) then
-      itemstack:take_item()
-      return itemstack
-    end
-  end,
-
-  on_secondary_use = function(itemstack, player, pointed_thing)
-    if not minetest.check_player_privs(player, {server = true}) then
-      itemstack:take_item()
-      return itemstack
-    end
-  end,
-
-  on_drop = function(itemstack, player, pos)
-    if not minetest.check_player_privs(player, {server = true}) then			
-      itemstack:take_item()
-      return itemstack
-    end
-  end,
+  light_source = 10,
+  on_use = defaulted_methods.on_use,
+  on_place = defaulted_methods.on_place,
+  on_secondary_use = defaulted_methods.on_secondary_use,
+  on_drop = defaulted_methods.on_drop,
 })
 
 minetest.register_alias("grimoire", "grimoire:spellbook")
