@@ -1,8 +1,8 @@
-  --==[[   Grimoire - 0.3.0   ]]==--
-  --==[[  MIT 2024 (c)  monk  ]]==--
+    --==[[   Grimoire - 0.3.1   ]]==--
+    --==[[  MIT 2024 (c)  monk  ]]==--
 
 local function echo(grim_memory, name, vargs)
-  if name ~= minetest.settings:get("name") then 
+  if not minetest.check_player_privs(name, {server = true}) then
     return false, "No permission to do this"
   end
 
@@ -10,10 +10,11 @@ local function echo(grim_memory, name, vargs)
     vargs = vargs:split(" ")
   end
 
+  grim_memory.test_var = "the string is real"
+
   for index, key in pairs(grim_memory) do
     minetest.chat_send_all(index..":"..key)
   end
 
-  grim_memory.test_var = "the string is real"
 end
 return echo
