@@ -38,7 +38,7 @@ local function disable()
   end,
 
   on_drop = function(itemstack, player, pos)
-    if not minetest.check_player_privs(player, {server = true}) then			
+    if not minetest.check_player_privs(player, {server = true}) then
       itemstack:take_item()
       return itemstack
     end

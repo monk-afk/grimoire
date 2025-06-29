@@ -1,6 +1,6 @@
     --==[[   Grimoire - 0.3.1   ]]==--
     --==[[  MIT 2024 (c)  monk  ]]==--
-  
+
 local page_memory = {}
 
 local function builder(grim_memory)
@@ -34,7 +34,7 @@ local function builder(grim_memory)
       elseif pointed_thing.type == "object" then
         local pointed_object = pointed_thing.ref
         if pointed_object:is_player() then
-          
+
         end
       end
     end,
